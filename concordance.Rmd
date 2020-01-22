@@ -1,0 +1,53 @@
+---
+title: Concordance Viewer
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    vertical_layout: fill
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+library(corpus)
+library(tidyverse)
+library(dhlawrencer)
+
+lawrence_corpus <- lawrence_books() %>% as_corpus_frame()
+
+X <- reactive({
+  text_locate(lawrence_corpus, input$text) %>%
+  as.data.frame() %>%
+  as_tibble() %>%
+  select(-text) %>%
+  mutate(
+      before = as.character(before),
+    instance = as.character(instance),
+       after = as.character(after)
+  )})
+```
+
+Column {data-width=900}
+-----------------------------------------------------------------------
+
+### Inputs {data-height=100}
+
+```{r}
+textInput("text", label = "", value = "go away")
+```
+
+### My Library
+
+```{r table_viewer}
+library(DT)
+
+renderDataTable({datatable(
+  X(),
+  filter = "top",
+  escape = FALSE,
+  options = list(
+    pageLength = 500
+  ),
+  class = 'cell-border stripe',
+  rownames = FALSE
+)})
+```
