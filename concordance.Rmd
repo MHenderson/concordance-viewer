@@ -10,25 +10,42 @@ runtime: shiny
 ```{r setup, include=FALSE}
 library(corpus)
 library(tidyverse)
-library(dhlawrencer)
 
-lawrence_corpus <- lawrence_books() %>% as_corpus_frame()
+lawrence_corpus <- readRDS(here::here("data", "lawrence_corpus.rds"))
+eliot_corpus <- readRDS(here::here("data", "eliot_corpus.rds"))
 
-X <- reactive({
-  text_locate(lawrence_corpus, input$text) %>%
-  as.data.frame() %>%
-  as_tibble() %>%
-  select(-text) %>%
-  mutate(
-      before = as.character(before),
+concordance <- function(corpus, search_term, left = -50, right = 50) {
+  corpus %>%
+    as_corpus_frame() %>%
+    text_locate(search_term) %>%
+    as_tibble() %>%
+    select(-text) %>%
+    mutate(
+      before = as.character(before) %>% str_sub(start = left),
     instance = as.character(instance),
-       after = as.character(after)
-  )})
+       after = as.character(after) %>% str_sub(end = right)
+    )
+}
+
+reactive_concordance <- reactive({
+  concordance(get(input$select), input$text)
+})
 ```
 
 ## Inputs {.sidebar}
 
 ### search
+
+```{r}
+selectInput(
+  "select",
+  label = "Select corpus", 
+  choices =  list(
+    "D. H. Lawrence" = "lawrence_corpus",
+    "George Eliot" = "eliot_corpus"
+  )
+)
+```
 
 ```{r}
 textInput("text", label = "", value = "go away")
@@ -42,11 +59,14 @@ textInput("text", label = "", value = "go away")
 library(DT)
 
 renderDataTable({datatable(
-  X(),
+  reactive_concordance(),
   filter = "top",
   escape = FALSE,
   options = list(
-    pageLength = 500
+    pageLength = 500,
+    columnDefs = list(
+      list(className = 'dt-center', targets = 0:2)
+    )
   ),
   class = 'cell-border stripe',
   rownames = FALSE
