@@ -26,16 +26,17 @@ X <- reactive({
   )})
 ```
 
-Column {data-width=900}
------------------------------------------------------------------------
+## Inputs {.sidebar}
 
-### Inputs {data-height=100}
+### search
 
 ```{r}
 textInput("text", label = "", value = "go away")
 ```
 
-### My Library
+## Column {data-width=900}
+
+### table
 
 ```{r table_viewer}
 library(DT)
