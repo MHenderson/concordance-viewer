@@ -3,7 +3,7 @@ title: Concordance Viewer
 output: 
   flexdashboard::flex_dashboard:
     orientation: columns
-    vertical_layout: fill
+    vertical_layout: scroll
 runtime: shiny
 ---
 
