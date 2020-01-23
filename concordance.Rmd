@@ -1,10 +1,13 @@
 ---
-title: Concordance Viewer
-output: 
+title: "Concordance Viewer"
+resource_files:
+- data/eliot_corpus.rds
+- data/lawrence_corpus.rds
+runtime: shiny
+output:
   flexdashboard::flex_dashboard:
     orientation: columns
     vertical_layout: scroll
-runtime: shiny
 ---
 
 ```{r setup, include=FALSE}
@@ -28,7 +31,8 @@ concordance <- function(corpus, search_term, left = -50, right = 50) {
 }
 
 reactive_concordance <- reactive({
-  concordance(get(input$select), input$text)
+  input$goButton
+  concordance(get(isolate(input$select)), isolate(input$text))
 })
 ```
 
@@ -49,6 +53,10 @@ selectInput(
 
 ```{r}
 textInput("text", label = "", value = "go away")
+```
+
+```{r}
+actionButton("goButton", "Go!")
 ```
 
 ## Column {data-width=900}
