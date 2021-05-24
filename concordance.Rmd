@@ -78,14 +78,26 @@ actionButton("goButton", "Go!")
 
 ```{r table_viewer}
 library(formattable)
+library(DT)
 
-renderFormattable({
+renderDataTable({
   reactive_concordance() %>%
   select(before, node = instance, after, title) %>%
     formattable(
        align = c("r", "c", "l", "c"),
-    list(`node` = formatter("span", style = ~ style(color = "#0071bc", font.weight = "bold")))
-
+    list(`node` = formatter("span", style = ~ style(color = "#0071bc", font.weight = "bold")))) %>%
+    as.datatable(
+      filter = "top",
+      escape = FALSE,
+      options = list(
+        pageLength = 500,
+        columnDefs = list(
+          list(className = 'dt-right', targets = 1),
+          list(className = 'dt-center', targets = c(0, 2)),
+          list(className = 'dt-left', targets = 3),
+          list(width = instance_width(), targets = 2)
+        )
+      )
     )
 })
 ```
