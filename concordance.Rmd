@@ -40,7 +40,7 @@ concordance <- function(corpus, search_term, left = -50, right = 50) {
 
 reactive_concordance <- reactive({
   input$goButton
-  concordance(get(isolate(input$select)), isolate(input$text))
+  concordance(get(input$select), isolate(input$text))
 })
 
 instance_width <- reactive({
