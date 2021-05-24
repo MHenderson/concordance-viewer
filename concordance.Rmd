@@ -1,13 +1,12 @@
 ---
 title: "Concordance Viewer"
-resource_files:
-- data/eliot_corpus.rds
-- data/lawrence_corpus.rds
 runtime: shiny
 output:
   flexdashboard::flex_dashboard:
     orientation: columns
     vertical_layout: scroll
+    theme: 
+      version: 4
 ---
 
 ```{r setup, include=FALSE}
@@ -16,31 +15,14 @@ library(dplyr)
 library(here)
 library(stringr)
 
-lawrence_corpus <- here("data", "lawrence_corpus.rds") %>%
-  readRDS() %>%
-  mutate(
-    title = as.character(book)
-  )
+source("R/concordance.R")
 
-eliot_corpus <- here("data", "eliot_corpus.rds") %>% 
-  readRDS()
-
-concordance <- function(corpus, search_term, left = -50, right = 50) {
-  x <- corpus %>%
-    corpus_frame() %>%
-    text_locate(search_term) %>%
-    mutate(
-      before = as.character(before) %>% str_sub(start = left),
-    instance = as.character(instance),
-       after = as.character(after) %>% str_sub(end = right)
-    )
-  x$title <- corpus$title[as.numeric(x$text)]
-  return(x %>% select(title, before, instance, after))
-}
+download.file("https://raw.githubusercontent.com/MHenderson/horror-corpus/master/data/horror.rds", destfile = "horror.rds")
+horror_books <- readRDS("horror.rds")
 
 reactive_concordance <- reactive({
   input$goButton
-  concordance(get(input$select), isolate(input$text))
+  concordance(horror_books, isolate(input$text))
 })
 
 instance_width <- reactive({
@@ -54,17 +36,6 @@ instance_width <- reactive({
 ### search
 
 ```{r}
-selectInput(
-  "select",
-  label = "Select corpus", 
-  choices =  list(
-    "D. H. Lawrence" = "lawrence_corpus",
-    "George Eliot" = "eliot_corpus"
-  )
-)
-```
-
-```{r}
 textInput("text", label = "", value = "go away")
 ```
 
@@ -74,7 +45,7 @@ actionButton("goButton", "Go!")
 
 ## Column {data-width=900}
 
-### table
+###
 
 ```{r table_viewer}
 library(formattable)
@@ -82,7 +53,7 @@ library(DT)
 
 renderDataTable({
   reactive_concordance() %>%
-  select(before, node = instance, after, title) %>%
+  select(before, node = instance, after, title, author) %>%
     formattable(
        align = c("r", "c", "l", "c"),
     list(`node` = formatter("span", style = ~ style(color = "#0071bc", font.weight = "bold")))) %>%
