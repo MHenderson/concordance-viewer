@@ -12,20 +12,23 @@ output:
 
 ```{r setup, include=FALSE}
 library(corpus)
-library(tidyverse)
+library(dplyr)
+library(here)
+library(stringr)
 
-lawrence_corpus <- readRDS(here::here("data", "lawrence_corpus.rds")) %>%
+lawrence_corpus <- here("data", "lawrence_corpus.rds") %>%
+  readRDS() %>%
   mutate(
     title = as.character(book)
   )
 
-eliot_corpus <- readRDS(here::here("data", "eliot_corpus.rds"))
+eliot_corpus <- here("data", "eliot_corpus.rds") %>% 
+  readRDS()
 
 concordance <- function(corpus, search_term, left = -50, right = 50) {
   x <- corpus %>%
-    as_corpus_frame() %>%
+    corpus_frame() %>%
     text_locate(search_term) %>%
-    as_tibble() %>%
     mutate(
       before = as.character(before) %>% str_sub(start = left),
     instance = as.character(instance),
@@ -74,22 +77,16 @@ actionButton("goButton", "Go!")
 ### table
 
 ```{r table_viewer}
-library(DT)
+library(formattable)
 
-renderDataTable({datatable(
-  reactive_concordance(),
-  filter = "top",
-  escape = FALSE,
-  options = list(
-    pageLength = 500,
-    columnDefs = list(
-      list(className = 'dt-right', targets = 1),
-      list(className = 'dt-center', targets = c(0, 2)),
-      list(className = 'dt-left', targets = 3),
-      list(width = instance_width(), targets = 2)
+renderFormattable({
+  reactive_concordance() %>%
+  select(before, node = instance, after, title) %>%
+    formattable(
+       align = c("r", "c", "l", "c"),
+    list(`node` = formatter("span", style = ~ style(color = "#0071bc", font.weight = "bold")))
+
     )
-  ),
-  class = 'cell-border stripe',
-  rownames = FALSE
-)})
+})
 ```
+
