@@ -10,14 +10,14 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-library(corpus)
-library(dplyr)
 library(here)
-library(stringr)
+library(dplyr)
 
-source("R/concordance.R")
+source(here("R", "concordance.R"))
 
-download.file("https://raw.githubusercontent.com/MHenderson/horror-corpus/master/data/horror.rds", destfile = "horror.rds")
+if(!file.exists("horror.rds")) {
+  download.file("https://raw.githubusercontent.com/MHenderson/horror-corpus/master/data/horror.rds", destfile = "horror.rds")
+}
 horror_books <- readRDS("horror.rds")
 
 reactive_concordance <- reactive({
