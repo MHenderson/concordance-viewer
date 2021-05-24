@@ -5,8 +5,10 @@ output:
   flexdashboard::flex_dashboard:
     orientation: columns
     vertical_layout: scroll
-    theme: 
+    theme:
       version: 4
+resource_files:
+- R/concordance.R
 ---
 
 ```{r setup, include=FALSE}
